@@ -3,7 +3,7 @@
 
 struct node
 {
-    char Problem[1000];
+    char Problem[200];
     char ans1[100];
     int People1;
     int Court1;
@@ -19,12 +19,28 @@ void openning (void);
 void enter_name (int max_len, char name[max_len]);
 int menu (void);
 void clear (void);
-struct node * get_problems (int *no_problems);
+struct node * get_problems (int *number_of_problems);
 
 int main()
 {
+    int num = 0;
     openning();
-    printf("you are : %d", menu());
+
+    struct node *head = get_problems(&num);
+
+
+    for (struct node *list = head; list != NULL; list = list -> next)
+    {
+        printf("%s\n", list->Problem);
+        printf("%s\n", list->ans1);
+        printf("%d\n", list->People1);
+        printf("%d\n", list->Court1);
+        printf("%d\n", list->Treasury1);
+        printf("%s\n", list->ans2);
+        printf("%d\n", list->People2);
+        printf("%d\n", list->Court2);
+        printf("%d\n", list->Treasury2);
+    }
 }
 
 void clear(void)
@@ -93,35 +109,54 @@ int menu(void)
     }
 }
 
-struct node * get_problems(int *no_problems)
+struct node * get_problems(int *number_of_problems)
 {
-    *no_problems = 0;
-    struct ndoe *list = (struct node *)malloc(sizeof(struct ndoe *));
-    struct ndoe *head;
-    head = list;
-    list = NULL;
+    *number_of_problems = 0;
+    struct node *list = (struct node *)malloc(sizeof(struct node));
+    struct node *head;
+    list = head = NULL;
     FILE *fpp = fopen("CHOICES.txt", "r");
+    if (fpp == NULL)
+    {
+        printf("No file with 'CHOICES.txt' name founded\n");
+        return NULL;
+    }
+    int i = 1;
     while(1)
     {
         if (feof(fpp))
         {
             break;
         }
-        (*no_problems)++;
+        (*number_of_problems)++;
         char file_name[20];
         fscanf(fpp, "%s", file_name);
-        struct node *new = (struct node *)malloc(sizeof(struct node *));
+        struct node *newD = (struct node *)malloc(sizeof(struct node));
         FILE *f = fopen(file_name, "r");
-        fgets(&(new->Problem), 1000, f);
-        fgets(&(new->ans1), 100, f);
-        fscanf(f, "%d", &(new->People1));
-        fscanf(f, "%d", &(new->Court1));
-        fscanf(f, "%d", &(new->Treasury1));
-        fgets(&(new->ans2), 100, f);
-        fscanf(f, "%d", &(new->People2));
-        fscanf(f, "%d", &(new->Court2));
-        fscanf(f, "%d", &(new->Treasury2));
-        f   close
+        if(f == NULL)
+        {
+            printf("No 'problem file' founded\n");
+            break;
+        }
+        fgets(&newD->Problem, 200, f);
+        fgets(&newD->ans1, 100, f);
+        fscanf(f, "%d", &newD->People1);
+        fscanf(f, "%d", &newD->Court1);
+        fscanf(f, "%d", &newD->Treasury1);
+        fseek(f, 2 * sizeof(char), SEEK_CUR);
+        fgets(&newD->ans2, 100, f);
+        fscanf(f, "%d", &newD->People2);
+        fscanf(f, "%d", &newD->Court2);
+        fscanf(f, "%d", &newD->Treasury2);
+        fclose(f);
+        list = newD;
+        list->next = NULL;
+        if (i++ == 1)
+        {
+            head = list;
+        }
+        list = list -> next;
     }
+    fclose(fpp);
     return head;
-};
+}
